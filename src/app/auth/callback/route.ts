@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createServerClient } from '@supabase/ssr'
 import { homePathForRole } from '@/lib/auth/roles'
 import { getProfile } from '@/lib/auth/getProfile'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
-  const origin = requestUrl.origin
+
+  // Gunakan header proxy Vercel untuk mendeteksi origin aktual pengguna
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+  const origin = forwardedHost
+    ? `${forwardedProto}://${forwardedHost}`
+    : requestUrl.origin
 
   // Cek parameter error dari redirect penyedia OAuth atau Supabase
   const oauthError = requestUrl.searchParams.get('error')
@@ -24,7 +30,37 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const supabase = await createClient()
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.redirect(`${origin}/login?error=unknown`)
+    }
+
+    // Response default sementara
+    let response = NextResponse.redirect(`${origin}/login?error=unknown`)
+
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          const cookieHeader = request.headers.get('cookie') || ''
+          return cookieHeader
+            .split(';')
+            .map((c) => c.trim())
+            .filter(Boolean)
+            .map((c) => {
+              const [name, ...val] = c.split('=')
+              return { name, value: val.join('=') }
+            })
+        },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options)
+          })
+        },
+      },
+    })
+
     const { error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (error) {
@@ -43,13 +79,25 @@ export async function GET(request: Request) {
     const profile = await getProfile(supabase)
 
     if (!profile) {
-      // Jika profile tidak ditemukan atau tidak aktif
+      // Jika profile tidak ditemukan atau belum didaftarkan admin
       await supabase.auth.signOut()
-      return NextResponse.redirect(`${origin}/login?error=not_registered`)
+      const notRegisteredResp = NextResponse.redirect(`${origin}/login?error=not_registered`)
+      // Bersihkan cookie auth
+      response.cookies.getAll().forEach((c) => {
+        notRegisteredResp.cookies.delete(c.name)
+      })
+      return notRegisteredResp
     }
 
     const destination = homePathForRole(profile.role)
-    return NextResponse.redirect(`${origin}${destination}`)
+    const successResponse = NextResponse.redirect(`${origin}${destination}`)
+
+    // Salin seluruh cookie sesi login ke response akhir
+    response.cookies.getAll().forEach((c) => {
+      successResponse.cookies.set(c.name, c.value, c)
+    })
+
+    return successResponse
   }
 
   return NextResponse.redirect(`${origin}/login?error=unknown`)

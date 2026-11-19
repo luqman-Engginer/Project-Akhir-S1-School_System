@@ -85,8 +85,7 @@ export function DemoButtons() {
       }
 
       if (data.redirectUrl) {
-        router.push(data.redirectUrl);
-        router.refresh();
+        window.location.href = data.redirectUrl;
       }
     } catch (err: unknown) {
       setErrorMessage(

@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import Link from 'next/link';
 import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -25,8 +26,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   async function handleGoogleSignIn() {
     'use server';
+    const headersList = await headers();
+    const host = headersList.get('x-forwarded-host') || headersList.get('host');
+    const proto = headersList.get('x-forwarded-proto') || 'https';
+
+    // Ambil base URL aktual dari request browser saat ini (menghindari redirect ke localhost saat di Vercel)
+    let siteUrl = host
+      ? `${proto}://${host}`
+      : process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+    siteUrl = siteUrl.replace(/\/$/, '');
+
     const supabase = await createClient();
-    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {

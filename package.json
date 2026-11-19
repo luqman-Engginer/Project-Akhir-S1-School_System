@@ -10,6 +10,7 @@
     "test": "vitest run",
     "seed:demo": "node --experimental-strip-types scripts/seed-demo-auth.ts",
     "seed:data": "node --experimental-strip-types scripts/seed-data.ts",
+    "add:admin": "node --experimental-strip-types scripts/register-admin.ts",
     "clean:demo": "node --experimental-strip-types scripts/cleanup-demo-users.ts",
     "smoke": "node --experimental-strip-types scripts/smoke-test.ts",
     "seed:reset": "node --experimental-strip-types scripts/reset-academic-data.ts",
