@@ -44,6 +44,7 @@ export async function proxy(request: NextRequest) {
     pathname === '/styleguide' && process.env.NODE_ENV !== 'production';
 
   const isPublicRoute =
+    pathname === '/' ||
     pathname === '/login' ||
     pathname === '/demo' ||
     pathname.startsWith('/auth/') ||

@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
-import { AlertCircle, ArrowRight } from 'lucide-react';
+import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
 interface LoginPageProps {
@@ -56,6 +56,17 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       />
 
       <div className="w-full max-w-md relative z-10">
+        {/* Tombol kembali ke Landing Page */}
+        <div className="mb-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors p-1"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Kembali ke Halaman Utama</span>
+          </Link>
+        </div>
+
         {/* Brand Header */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-primary)] text-white shadow-sm mb-4">
