@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-canvas: #FAF7F2;
+  --bg-surface: #FFFFFF;
+  --text-main: #1F2A2E;
+  --text-muted: #5B676B;
+  --border-subtle: #E6E0D6;
+  --brand-primary: #1F5C4D;
+  --brand-primary-hover: #184A3E;
+  --brand-primary-light: #EBF3F0;
+  --accent-terracotta: #C8643B;
+  --accent-terracotta-hover: #B0532E;
+  --accent-terracotta-light: #FAECE5;
+
+  /* Status Tokens (WCAG AA Compliant) */
+  --status-success-text: #165B36;
+  --status-success-bg: #EAF6EE;
+  --status-success-border: #C2E7CE;
+
+  --status-warning-text: #7A4E00;
+  --status-warning-bg: #FEF7E6;
+  --status-warning-border: #F8DF9E;
+
+  --status-danger-text: #962828;
+  --status-danger-bg: #FDEEEE;
+  --status-danger-border: #F7C3C3;
+
+  --status-info-text: #174E82;
+  --status-info-bg: #EDF4FB;
+  --status-info-border: #C8DFF5;
+
+  --status-neutral-text: #485458;
+  --status-neutral-bg: #F0ECE4;
+  --status-neutral-border: #DCD6CC;
+
+  --radius-control: 10px;
+  --radius-panel: 14px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  text-rendering: optimizeLegibility;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Skala teks besar untuk kenyamanan membaca (112.5%) */
+html.text-large {
+  font-size: 18px;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-canvas);
+  color: var(--text-main);
+  min-height: 100vh;
+  margin: 0;
+  font-family: var(--font-body, Figtree, system-ui, -apple-system, sans-serif);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading, 'Bricolage Grotesque', system-ui, sans-serif);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  letter-spacing: -0.015em;
+  color: var(--text-main);
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #D9D2C7;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #BFB8AD;
+}
+
+/* Utility Focus Ring Accessiblity */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* Skip link untuk navigasi keyboard */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 1rem;
+  background: var(--brand-primary);
+  color: #FFFFFF;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-control);
+  z-index: 9999;
+  font-weight: 600;
+  transition: top 0.2s ease;
+}
+.skip-link:focus {
+  top: 1rem;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

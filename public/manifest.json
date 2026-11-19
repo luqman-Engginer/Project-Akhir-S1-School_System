@@ -1,0 +1,16 @@
+{
+  "name": "Sekolahku - Sistem Sekolah SMK",
+  "short_name": "Sekolahku",
+  "description": "Sistem informasi sekolah simple dan ramah untuk SMK",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#1F5C4D",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
