@@ -1,47 +1,47 @@
-import { NextResponse, type NextRequest } from 'next/server'
-import { createServerClient } from '@supabase/ssr'
-import { homePathForRole } from '@/lib/auth/roles'
+import { NextResponse, type NextRequest } from 'next/server';
+import { createServerClient } from '@supabase/ssr';
+import { homePathForRole } from '@/lib/auth/roles';
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
-  })
+  });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    return response
+    return response;
   }
 
   const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       getAll() {
-        return request.cookies.getAll()
+        return request.cookies.getAll();
       },
       setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
+        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
         response = NextResponse.next({
           request,
-        })
+        });
         cookiesToSet.forEach(({ name, value, options }) =>
           response.cookies.set(name, value, options)
-        )
+        );
       },
     },
-  })
+  });
 
   const {
     data: { user },
-  } = await supabase.auth.getUser()
+  } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname
+  const pathname = request.nextUrl.pathname;
 
   // Rute publik yang tidak memerlukan login
   const isStyleguideAllowed =
-    pathname === '/styleguide' && process.env.NODE_ENV !== 'production'
+    pathname === '/styleguide' && process.env.NODE_ENV !== 'production';
 
   const isPublicRoute =
     pathname === '/login' ||
@@ -49,14 +49,14 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/auth/') ||
     pathname.startsWith('/api/demo-login') ||
     pathname.startsWith('/api/cron/') ||
-    isStyleguideAllowed
+    isStyleguideAllowed;
 
   // 1. Jika belum login dan mengakses rute terlindungi -> redirect ke /login
   if (!user) {
     if (!isPublicRoute) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return NextResponse.redirect(new URL('/login', request.url));
     }
-    return response
+    return response;
   }
 
   // 2. Jika sudah login -> ambil profil dari database (role & is_active)
@@ -64,19 +64,19 @@ export async function middleware(request: NextRequest) {
     .from('profiles')
     .select('role, is_active')
     .eq('auth_user_id', user.id)
-    .maybeSingle()
+    .maybeSingle();
 
   // Jika profil tidak ditemukan atau status dinonaktifkan
   if (error || !profile || !profile.is_active) {
-    await supabase.auth.signOut()
-    return NextResponse.redirect(new URL('/login?error=inactive', request.url))
+    await supabase.auth.signOut();
+    return NextResponse.redirect(new URL('/login?error=inactive', request.url));
   }
 
-  const userHome = homePathForRole(profile.role)
+  const userHome = homePathForRole(profile.role);
 
   // Jika pengguna yang sudah login membuka /login atau root /, arahkan ke beranda rolenya
   if (pathname === '/login' || pathname === '/') {
-    return NextResponse.redirect(new URL(userHome, request.url))
+    return NextResponse.redirect(new URL(userHome, request.url));
   }
 
   // 3. Batasi akses rute berdasarkan role
@@ -85,19 +85,22 @@ export async function middleware(request: NextRequest) {
     { prefix: '/guru', allowedRole: 'teacher' },
     { prefix: '/murid', allowedRole: 'student' },
     { prefix: '/ortu', allowedRole: 'parent' },
-  ]
+  ];
 
   for (const { prefix, allowedRole } of roleProtectedPrefixes) {
     if (pathname === prefix || pathname.startsWith(`${prefix}/`)) {
       if (profile.role !== allowedRole) {
         // Redirect ke beranda rolenya sendiri jika mencoba mengakses area role lain
-        return NextResponse.redirect(new URL(userHome, request.url))
+        return NextResponse.redirect(new URL(userHome, request.url));
       }
     }
   }
 
-  return response
+  return response;
 }
+
+export const middleware = proxy;
+export default proxy;
 
 export const config = {
   matcher: [
@@ -106,4 +109,4 @@ export const config = {
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
-}
+};
