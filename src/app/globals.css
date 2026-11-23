@@ -3,15 +3,28 @@
 :root {
   --bg-canvas: #FAF7F2;
   --bg-surface: #FFFFFF;
-  --text-main: #1F2A2E;
-  --text-muted: #5B676B;
-  --border-subtle: #E6E0D6;
-  --brand-primary: #1F5C4D;
-  --brand-primary-hover: #184A3E;
-  --brand-primary-light: #EBF3F0;
-  --accent-terracotta: #C8643B;
-  --accent-terracotta-hover: #B0532E;
+  --text-main: #111827;
+  --text-muted: #4B5563;
+  --border-subtle: #DDD8CF;
+  --brand-primary: #144D40;
+  --brand-primary-hover: #0F3B31;
+  --brand-primary-light: #E8F4F0;
+  --accent-terracotta: #C85A2B;
+  --accent-terracotta-hover: #B34A1D;
   --accent-terracotta-light: #FAECE5;
+
+  /* Aliases untuk kompatibilitas token UI */
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-primary-hover);
+  --color-primary-light: var(--brand-primary-light);
+  --color-accent: var(--accent-terracotta);
+  --color-accent-hover: var(--accent-terracotta-hover);
+  --color-accent-light: var(--accent-terracotta-light);
+  --color-text: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border-subtle);
+  --color-bg: var(--bg-canvas);
+  --color-surface: var(--bg-surface);
 
   /* Status Tokens (WCAG AA Compliant) */
   --status-success-text: #165B36;

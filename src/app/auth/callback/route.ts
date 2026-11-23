@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { homePathForRole } from '@/lib/auth/roles'
 import { getProfile } from '@/lib/auth/getProfile'
+import { getSupabaseConfig } from '@/lib/supabase/config'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -30,8 +31,7 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig()
 
     if (!supabaseUrl || !supabaseAnonKey) {
       return NextResponse.redirect(`${origin}/login?error=unknown`)
@@ -82,7 +82,6 @@ export async function GET(request: Request) {
       // Jika profile tidak ditemukan atau belum didaftarkan admin
       await supabase.auth.signOut()
       const notRegisteredResp = NextResponse.redirect(`${origin}/login?error=not_registered`)
-      // Bersihkan cookie auth
       response.cookies.getAll().forEach((c) => {
         notRegisteredResp.cookies.delete(c.name)
       })

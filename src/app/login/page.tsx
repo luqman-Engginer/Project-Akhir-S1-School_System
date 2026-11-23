@@ -2,8 +2,7 @@ import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import Link from 'next/link';
-import { AlertCircle, ArrowRight, ArrowLeft } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { AlertCircle, ArrowRight, ArrowLeft, Sparkles, ShieldCheck } from 'lucide-react';
 
 interface LoginPageProps {
   searchParams: Promise<{ error?: string }>;
@@ -16,7 +15,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   let errorMessage: string | null = null;
   if (errorKey === 'not_registered') {
     errorMessage =
-      'Email Google Anda belum terdaftar di sistem. Silakan hubungi admin sekolah untuk didaftarkan.';
+      'Email Google Anda belum terdaftar di sistem. Silakan hubungi admin sekolah untuk didaftarkan ke data pengguna.';
   } else if (errorKey === 'inactive') {
     errorMessage =
       'Akun Anda sedang dinonaktifkan. Silakan hubungi tata usaha atau admin sekolah.';
@@ -54,12 +53,12 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden">
-      {/* Background Decorative Pattern */}
+    <div className="min-h-screen bg-[#FAF7F2] text-stone-900 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
+      {/* Background Subtle Grid */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 pointer-events-none opacity-[0.04]"
         style={{
-          backgroundImage: `radial-gradient(var(--color-primary) 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(#144D40 1px, transparent 1px)`,
           backgroundSize: '24px 24px',
         }}
         aria-hidden="true"
@@ -67,50 +66,53 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
       <div className="w-full max-w-md relative z-10">
         {/* Tombol kembali ke Landing Page */}
-        <div className="mb-4">
+        <div className="mb-6">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors p-1"
+            className="inline-flex items-center gap-2 text-xs font-bold text-stone-600 hover:text-[#144D40] transition-colors py-1.5 px-3 rounded-lg hover:bg-stone-200/50"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-4 h-4 text-[#144D40]" />
             <span>Kembali ke Halaman Utama</span>
           </Link>
         </div>
 
         {/* Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-[var(--color-primary)] text-white shadow-sm mb-4">
-            <span className="font-display font-bold text-2xl">S</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#144D40] text-white shadow-md ring-4 ring-[#144D40]/10 mb-4">
+            <span className="font-display font-bold text-3xl">S</span>
           </div>
-          <h1 className="font-display text-3xl font-extrabold text-[var(--color-text)] tracking-tight">
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold text-stone-900 tracking-tight">
             Sekolahku
           </h1>
-          <p className="text-sm text-[var(--color-text-muted)] mt-1.5 max-w-xs mx-auto leading-relaxed">
+          <p className="text-sm text-stone-600 mt-2 max-w-xs mx-auto leading-relaxed font-medium">
             Sistem sekolah sederhana dan nyaman untuk guru, murid, dan orang tua.
           </p>
         </div>
 
         {/* Card Form */}
-        <div className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[16px] p-6 sm:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+        <div className="bg-white border-2 border-stone-200/90 rounded-2xl p-6 sm:p-8 shadow-sm">
           {errorMessage && (
             <div
               role="alert"
-              className="mb-6 p-4 rounded-[10px] bg-[var(--status-danger-bg)] border border-[var(--status-danger-border)] text-[var(--status-danger-text)] text-sm flex items-start gap-3"
+              className="mb-6 p-4 rounded-xl bg-red-50 border-2 border-red-200 text-red-900 text-sm flex items-start gap-3 shadow-2xs"
             >
-              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" aria-hidden="true" />
-              <p className="leading-snug">{errorMessage}</p>
+              <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-600" aria-hidden="true" />
+              <p className="leading-snug font-medium">{errorMessage}</p>
             </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <p className="text-xs uppercase tracking-wider font-semibold text-[var(--color-text-muted)] mb-3 text-center">
-                Masuk dengan Akun Resmi
-              </p>
+              <div className="flex items-center justify-center gap-1.5 mb-3">
+                <ShieldCheck className="w-4 h-4 text-[#144D40]" />
+                <p className="text-xs uppercase tracking-wider font-bold text-stone-700 text-center">
+                  Masuk dengan Akun Resmi
+                </p>
+              </div>
               <form action={handleGoogleSignIn}>
                 <button
                   type="submit"
-                  className="w-full min-h-[48px] px-4 py-3 rounded-[10px] border border-[#DDD7CD] bg-white hover:bg-[#FAF7F2] text-[var(--color-text)] font-semibold text-sm sm:text-base flex items-center justify-center gap-3 transition-colors shadow-2xs focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] cursor-pointer"
+                  className="w-full min-h-[50px] px-4 py-3 rounded-xl border-2 border-stone-300 hover:border-[#144D40] bg-white hover:bg-stone-50 text-stone-900 font-bold text-sm sm:text-base flex items-center justify-center gap-3 transition-all shadow-xs hover:shadow-sm cursor-pointer"
                 >
                   {/* Google SVG Icon */}
                   <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
@@ -136,29 +138,28 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               </form>
             </div>
 
-            <p className="text-xs text-center text-[var(--color-text-muted)] pt-2 leading-relaxed">
+            <p className="text-xs text-center text-stone-500 pt-1 leading-relaxed">
               Hanya email yang sudah didaftarkan oleh sekolah yang dapat masuk.
             </p>
           </div>
 
-          {process.env.DEMO_MODE === 'true' && (
-            <div className="mt-8 pt-6 border-t border-[#F0EBE1] text-center">
-              <span className="text-xs text-[var(--color-text-muted)] block mb-2">
-                Sedang mengevaluasi aplikasi?
-              </span>
-              <Link
-                href="/demo"
-                className="inline-flex items-center gap-1.5 text-sm font-semibold text-[var(--color-primary)] hover:underline focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] rounded-[4px]"
-              >
-                <span>Coba Mode Demo Tanpa Akun</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          )}
+          <div className="mt-8 pt-6 border-t-2 border-stone-100 text-center">
+            <span className="text-xs text-stone-600 block mb-2 font-medium">
+              Sedang mengevaluasi aplikasi tanpa akun?
+            </span>
+            <Link
+              href="/demo"
+              className="inline-flex items-center justify-center gap-2 w-full py-2.5 px-4 rounded-xl bg-amber-50 hover:bg-amber-100/80 border-2 border-amber-200 text-amber-950 font-bold text-sm transition-all shadow-2xs group"
+            >
+              <Sparkles className="w-4 h-4 text-amber-600" />
+              <span>Coba Mode Demo Instan</span>
+              <ArrowRight className="w-4 h-4 text-amber-600 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
         </div>
 
         {/* Footer info */}
-        <p className="text-center text-xs text-[var(--color-text-muted)] mt-8">
+        <p className="text-center text-xs text-stone-500 mt-8 font-medium">
           SMK Sekolahku &bull; Terbuka, Ramah, & Bersahabat
         </p>
       </div>

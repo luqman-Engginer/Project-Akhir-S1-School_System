@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { homePathForRole } from '@/lib/auth/roles';
+import { getSupabaseConfig } from '@/lib/supabase/config';
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({
@@ -9,8 +10,7 @@ export async function proxy(request: NextRequest) {
     },
   });
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { url: supabaseUrl, anonKey: supabaseAnonKey } = getSupabaseConfig();
 
   if (!supabaseUrl || !supabaseAnonKey) {
     return response;

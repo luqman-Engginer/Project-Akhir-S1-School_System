@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { homePathForRole, type Role } from '@/lib/auth/roles'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { getSupabaseConfig } from '@/lib/supabase/config'
 
 const demoLoginSchema = z.object({
   role: z.enum(['admin', 'teacher', 'student', 'parent']),
@@ -75,14 +76,13 @@ export async function POST(request: Request) {
   const { role } = parsed.data
   const demoPassword = process.env.DEMO_PASSWORD || 'sekolahku-demo-2026'
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const { url: supabaseUrl, anonKey: supabaseAnonKey, serviceRoleKey } = getSupabaseConfig()
 
-  if (!supabaseUrl || !supabaseAnonKey) {
+  if (!supabaseUrl || !supabaseAnonKey || !serviceRoleKey) {
     return NextResponse.json(
       {
         error:
-          'NEXT_PUBLIC_SUPABASE_URL atau NEXT_PUBLIC_SUPABASE_ANON_KEY belum diisi di environment variables.',
+          'Konfigurasi Supabase belum lengkap di Vercel: pastikan NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, dan SUPABASE_SERVICE_ROLE_KEY sudah terisi dengan benar.',
       },
       { status: 500 }
     )
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     return NextResponse.json(
-      { error: `Konfigurasi server belum lengkap: ${msg}` },
+      { error: `Gagal inisialisasi server client: ${msg}` },
       { status: 500 }
     )
   }
@@ -122,7 +122,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            'Tabel database belum dibuat di Supabase. Silakan jalankan file SQL di supabase/migrations pada SQL Editor Supabase.',
+            'Tabel database belum dibuat di Supabase. Silakan jalankan file SQL di supabase/migrations pada SQL Editor Supabase terlebih dahulu.',
         },
         { status: 500 }
       )
@@ -166,7 +166,6 @@ export async function POST(request: Request) {
   // 2. Pastikan user di Supabase Auth sudah ada dan passwordnya sesuai
   try {
     if (!authUserId) {
-      // Coba cari di auth.users jika sudah pernah terbuat
       const { data: userList } = await adminClient.auth.admin.listUsers()
       const foundInAuth = userList?.users?.find(
         (u) => u.email?.toLowerCase() === targetEmail.toLowerCase().trim()
