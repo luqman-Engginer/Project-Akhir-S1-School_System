@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Loader2,
   AlertCircle,
+  CheckCircle2,
 } from 'lucide-react';
 
 interface DemoRoleConfig {
@@ -17,10 +18,12 @@ interface DemoRoleConfig {
   demoName: string;
   badge: string;
   description: string;
+  highlights: string[];
   icon: React.ComponentType<{ className?: string }>;
   iconBg: string;
   iconColor: string;
-  borderHover: string;
+  accentBorder: string;
+  buttonClass: string;
 }
 
 export function DemoButtons() {
@@ -32,45 +35,53 @@ export function DemoButtons() {
       key: 'teacher',
       roleTitle: 'Guru & Wali Kelas',
       demoName: 'Pak Dedi Kurniawan, S.Kom',
-      badge: 'XI RPL 1',
-      description: 'Isi absensi harian 1 menit, kelola tugas & nilai, serta balas pesan ortu.',
+      badge: 'Wali XI RPL 1',
+      description: 'Isi absensi harian 1 menit, kelola tugas & nilai, serta balas pesan konsultasi ortu.',
+      highlights: ['Presensi murid per rombel', 'Buat & periksa tugas harian', 'Konfirmasi izin sakit'],
       icon: GraduationCap,
       iconBg: 'bg-emerald-100 border border-emerald-300',
-      iconColor: 'text-emerald-900',
-      borderHover: 'hover:border-emerald-700 hover:ring-2 hover:ring-emerald-700/10',
+      iconColor: 'text-emerald-950',
+      accentBorder: 'hover:border-emerald-700 hover:ring-2 hover:ring-emerald-700/15',
+      buttonClass: 'bg-emerald-800 text-white hover:bg-emerald-900',
     },
     {
       key: 'student',
       roleTitle: 'Murid SMK',
       demoName: 'Raka Pratama',
-      badge: 'Murid Aktif',
-      description: 'Cek tugas hari ini, lihat jadwal & rekap nilai transparan, dan izin sakit.',
+      badge: 'Kelas XI RPL 1',
+      description: 'Cek tugas hari ini, lihat jadwal pelajaran, pantau rekap nilai, dan ajukan izin sakit.',
+      highlights: ['Tugas dengan batas waktu jelas', 'Jadwal sesi & nilai transparan', 'Formulir izin berlampiran'],
       icon: BookOpen,
       iconBg: 'bg-sky-100 border border-sky-300',
-      iconColor: 'text-sky-900',
-      borderHover: 'hover:border-sky-700 hover:ring-2 hover:ring-sky-700/10',
+      iconColor: 'text-sky-950',
+      accentBorder: 'hover:border-sky-700 hover:ring-2 hover:ring-sky-700/15',
+      buttonClass: 'bg-sky-800 text-white hover:bg-sky-900',
     },
     {
       key: 'parent',
       roleTitle: 'Orang Tua / Wali',
       demoName: 'Pak Hendra Wijaya',
-      badge: 'Ortu Raka',
-      description: 'Pantau kehadiran anak, ajukan izin sakit resmi, dan chat dengan wali kelas.',
+      badge: 'Orang Tua Raka',
+      description: 'Pantau kehadiran anak, ajukan surat sakit resmi berlampiran, dan chat dengan wali kelas.',
+      highlights: ['Kabar kehadiran jam pertama', 'Chat privat dengan wali kelas', 'Pantau akumulasi nilai'],
       icon: HeartHandshake,
       iconBg: 'bg-amber-100 border border-amber-300',
-      iconColor: 'text-amber-900',
-      borderHover: 'hover:border-amber-700 hover:ring-2 hover:ring-amber-700/10',
+      iconColor: 'text-amber-950',
+      accentBorder: 'hover:border-amber-700 hover:ring-2 hover:ring-amber-700/15',
+      buttonClass: 'bg-amber-800 text-white hover:bg-amber-900',
     },
     {
       key: 'admin',
       roleTitle: 'Admin Sekolah',
       demoName: 'Bu Siti Aminah',
       badge: 'Administrator',
-      description: 'Kelola data pengguna, rombel kelas, mapel, dan siaran pengumuman.',
+      description: 'Kelola data pengguna, penugasan guru, rombel kelas, mata pelajaran, dan siaran pengumuman.',
+      highlights: ['Manajemen akun 4 peran', 'Distribusi jadwal & rombel', 'Siaran pengumuman terpusat'],
       icon: ShieldCheck,
       iconBg: 'bg-indigo-100 border border-indigo-300',
-      iconColor: 'text-indigo-900',
-      borderHover: 'hover:border-indigo-700 hover:ring-2 hover:ring-indigo-700/10',
+      iconColor: 'text-indigo-950',
+      accentBorder: 'hover:border-indigo-700 hover:ring-2 hover:ring-indigo-700/15',
+      buttonClass: 'bg-indigo-800 text-white hover:bg-indigo-900',
     },
   ];
 
@@ -94,7 +105,6 @@ export function DemoButtons() {
       }
 
       if (data.redirectUrl) {
-        // Gunakan full-page reload agar seluruh cookie sesi terbawa ke server
         window.location.href = data.redirectUrl;
       }
     } catch (err: unknown) {
@@ -117,51 +127,73 @@ export function DemoButtons() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 gap-3.5">
+      {/* Grid 2 Kolom Responsif */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
         {demoRoles.map((role) => {
           const Icon = role.icon;
           const isLoading = loadingRole === role.key;
 
           return (
-            <button
+            <div
               key={role.key}
-              type="button"
-              disabled={loadingRole !== null}
-              onClick={() => handleDemoLogin(role.key)}
-              className={`group text-left p-4 sm:p-4.5 rounded-xl bg-stone-50/70 border-2 border-stone-200/90 transition-all duration-150 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-between gap-3 shadow-2xs ${role.borderHover}`}
+              className={`rounded-xl bg-[#FAF7F2]/60 border-2 border-stone-200/90 p-5 sm:p-6 flex flex-col justify-between transition-all duration-150 shadow-2xs ${role.accentBorder}`}
             >
-              <div className="flex items-start gap-3.5 min-w-0">
-                <div
-                  className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${role.iconBg} ${role.iconColor}`}
-                >
-                  <Icon className="w-5 h-5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-bold text-sm sm:text-base text-stone-900">
-                      {role.roleTitle}
-                    </span>
-                    <span className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border border-stone-200 text-stone-700">
-                      {role.badge}
-                    </span>
+              <div>
+                {/* Header Kartu */}
+                <div className="flex items-start justify-between gap-3 mb-3.5">
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-xs ${role.iconBg} ${role.iconColor}`}
+                  >
+                    <Icon className="w-6 h-6" />
                   </div>
-                  <div className="text-xs font-semibold text-stone-700 mt-0.5">
-                    {role.demoName}
-                  </div>
-                  <p className="text-xs text-stone-600 mt-1 leading-snug line-clamp-2">
-                    {role.description}
-                  </p>
+                  <span className="text-[11px] font-bold px-2.5 py-1 rounded-full bg-white border border-stone-200 text-stone-700 shadow-2xs">
+                    {role.badge}
+                  </span>
                 </div>
+
+                {/* Judul & Nama Profil */}
+                <h2 className="font-display font-extrabold text-lg text-stone-900">
+                  {role.roleTitle}
+                </h2>
+                <div className="text-xs font-bold text-stone-600 mt-0.5">
+                  Profil: {role.demoName}
+                </div>
+
+                <p className="text-xs sm:text-sm text-stone-600 mt-2 leading-relaxed font-medium">
+                  {role.description}
+                </p>
+
+                {/* Fitur Utama */}
+                <ul className="mt-4 pt-3 border-t border-stone-200/80 space-y-1.5">
+                  {role.highlights.map((h, i) => (
+                    <li key={i} className="flex items-center gap-2 text-xs text-stone-700 font-medium">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                      <span>{h}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
 
-              <div className="shrink-0 pl-2 text-stone-400 group-hover:text-stone-900 transition-colors">
+              {/* Tombol Aksi */}
+              <button
+                type="button"
+                disabled={loadingRole !== null}
+                onClick={() => handleDemoLogin(role.key)}
+                className={`mt-5 w-full py-2.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed ${role.buttonClass}`}
+              >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin text-[#144D40]" />
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    <span>Menyiapkan Dasbor...</span>
+                  </>
                 ) : (
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  <>
+                    <span>Masuk sebagai {role.roleTitle.split('&')[0].trim()}</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </>
                 )}
-              </div>
-            </button>
+              </button>
+            </div>
           );
         })}
       </div>

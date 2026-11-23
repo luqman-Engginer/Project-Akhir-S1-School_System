@@ -117,17 +117,20 @@ export function AppLayout({
       {/* ============================================================ */}
       {/* DESKTOP SIDEBAR (>= 768px)                                   */}
       {/* ============================================================ */}
-      <aside className="hidden md:flex flex-col w-64 shrink-0 bg-[var(--color-surface)] border-r border-[var(--color-border)] min-h-screen sticky top-0 h-screen p-4 justify-between">
+      <aside className="hidden md:flex flex-col w-64 lg:w-72 shrink-0 bg-[var(--color-surface)] border-r border-[var(--color-border)] min-h-screen sticky top-0 h-screen p-4.5 justify-between">
         <div className="flex flex-col">
           {/* Logo Brand */}
-          <div className="flex items-center justify-between pb-4 mb-3 border-b border-[#F0EBE1]">
-            <Link href={`/${role === 'teacher' ? 'guru' : role === 'student' ? 'murid' : role === 'parent' ? 'ortu' : 'admin'}`} className="flex items-center gap-2">
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#F0EBE1]">
+            <Link href={`/${role === 'teacher' ? 'guru' : role === 'student' ? 'murid' : role === 'parent' ? 'ortu' : 'admin'}`} className="flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center font-display font-bold text-base shadow-xs">
+                S
+              </span>
               <span className="font-display font-bold text-xl text-[var(--color-primary)] tracking-tight">
                 Sekolahku
               </span>
             </Link>
             <span
-              className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${roleMeta.badgeClass}`}
+              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${roleMeta.badgeClass}`}
             >
               {roleMeta.badge}
             </span>
@@ -142,7 +145,7 @@ export function AppLayout({
           )}
 
           {/* Desktop Navigation Links */}
-          <nav className="space-y-1" aria-label="Navigasi Utama">
+          <nav className="space-y-1.5" aria-label="Navigasi Utama">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -155,9 +158,9 @@ export function AppLayout({
                   key={item.href}
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-[10px] text-sm font-medium transition-colors min-h-[44px] ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-[10px] text-sm font-medium transition-all min-h-[44px] ${
                     isActive
-                      ? 'bg-[#E8F1EE] text-[var(--color-primary)] font-semibold shadow-xs'
+                      ? 'bg-[#E8F1EE] text-[var(--color-primary)] font-bold shadow-xs ring-1 ring-[#144D40]/10'
                       : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[#F5F1E9]'
                   }`}
                 >
@@ -171,7 +174,7 @@ export function AppLayout({
 
         {/* Bottom Sidebar: TextScale & Profile */}
         <div className="pt-4 border-t border-[#F0EBE1] space-y-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between px-1">
             <TextScaleToggle />
             <NotificationPanel
               profileId={user.id}
@@ -180,14 +183,14 @@ export function AppLayout({
           </div>
 
           {/* User Profile Card */}
-          <div className="flex items-center justify-between p-2 rounded-[10px] bg-[#FAF7F2] border border-[#F0EBE1]">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F2] border border-[#F0EBE1] shadow-2xs">
             <div className="flex items-center gap-2.5 min-w-0">
               <Avatar name={user.fullName || 'Pengguna'} size="sm" />
               <div className="min-w-0">
-                <div className="text-xs font-semibold text-[var(--color-text)] truncate max-w-[110px]">
+                <div className="text-xs font-bold text-[var(--color-text)] truncate max-w-[120px]">
                   {user.fullName || 'Pengguna'}
                 </div>
-                <div className="text-[11px] text-[var(--color-text-muted)] truncate max-w-[110px]">
+                <div className="text-[11px] text-[var(--color-text-muted)] truncate max-w-[120px]">
                   {user.email}
                 </div>
               </div>
@@ -196,8 +199,8 @@ export function AppLayout({
             <form action="/auth/sign-out" method="POST">
               <button
                 type="submit"
-                className="p-1.5 rounded-[6px] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] hover:bg-white transition-colors"
-                title="Keluar"
+                className="p-1.5 rounded-lg text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                title="Keluar Akun"
                 aria-label="Keluar dari akun"
               >
                 <LogOut className="w-4 h-4" />
@@ -212,6 +215,9 @@ export function AppLayout({
       {/* ============================================================ */}
       <header className="md:hidden sticky top-0 z-30 bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
+          <span className="w-7 h-7 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center font-display font-bold text-sm shadow-xs">
+            S
+          </span>
           <span className="font-display font-bold text-lg text-[var(--color-primary)]">
             Sekolahku
           </span>
@@ -228,6 +234,16 @@ export function AppLayout({
             profileId={user.id}
             initialUnreadCount={unreadCount}
           />
+          <form action="/auth/sign-out" method="POST">
+            <button
+              type="submit"
+              className="p-1.5 rounded-lg text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+              title="Keluar Akun"
+              aria-label="Keluar dari akun"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </form>
         </div>
       </header>
 
@@ -235,7 +251,7 @@ export function AppLayout({
       {/* MAIN CONTENT AREA                                            */}
       {/* ============================================================ */}
       <main className="flex-1 flex flex-col min-w-0 pb-24 md:pb-8">
-        <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-6 flex-1">
+        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
           {children}
         </div>
       </main>
