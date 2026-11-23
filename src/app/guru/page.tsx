@@ -184,7 +184,7 @@ export default async function GuruHomePage() {
           </span>
         }
       >
-        {dashboardData && dashboardData.to_grade.length > 0 ? (
+        {dashboardData?.to_grade && dashboardData.to_grade.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.to_grade.slice(0, 5).map((item) => (
               <ListRow
@@ -238,7 +238,7 @@ export default async function GuruHomePage() {
           </Link>
         }
       >
-        {dashboardData && dashboardData.unanswered_threads.length > 0 ? (
+        {dashboardData?.unanswered_threads && dashboardData.unanswered_threads.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.unanswered_threads.map((thread) => (
               <ListRow
@@ -292,7 +292,7 @@ export default async function GuruHomePage() {
           title="Izin Menunggu Persetujuan"
           subtitle="Permohonan surat sakit atau izin tidak masuk dari murid/wali kelas Anda"
         >
-          {dashboardData && dashboardData.pending_leaves.length > 0 ? (
+          {dashboardData?.pending_leaves && dashboardData.pending_leaves.length > 0 ? (
             <div className="space-y-2.5">
               {dashboardData.pending_leaves.map((leave) => (
                 <TeacherLeaveItem key={leave.leave_id} leave={leave} />
@@ -312,7 +312,7 @@ export default async function GuruHomePage() {
       {/* ============================================================ */}
       {/* RINGKASAN KELAS MENGAJAR HARI INI                            */}
       {/* ============================================================ */}
-      {dashboardData && dashboardData.today_classes.length > 0 && (
+      {dashboardData?.today_classes && dashboardData.today_classes.length > 0 && (
         <Panel
           title="Jadwal Mengajar Hari Ini"
           subtitle="Daftar kelas tatap muka terjadwal"

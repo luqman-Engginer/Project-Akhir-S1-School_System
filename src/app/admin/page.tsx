@@ -215,7 +215,7 @@ export default async function AdminHomePage() {
         title="Perlu Perhatian (Ketidakhadiran)"
         subtitle="Siswa dengan catatan alpa atau izin yang memerlukan tindak lanjut bimbingan"
       >
-        {dashboardData && dashboardData.students_high_absence.length > 0 ? (
+        {dashboardData?.students_high_absence && dashboardData.students_high_absence.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.students_high_absence.map((student) => (
               <ListRow
@@ -272,7 +272,7 @@ export default async function AdminHomePage() {
           </Link>
         }
       >
-        {dashboardData && dashboardData.latest_announcements.length > 0 ? (
+        {dashboardData?.latest_announcements && dashboardData.latest_announcements.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.latest_announcements.slice(0, 3).map((item) => (
               <ListRow

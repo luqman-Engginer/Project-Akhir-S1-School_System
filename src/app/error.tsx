@@ -31,6 +31,14 @@ export default function GlobalError({ error, reset }: ErrorProps) {
           Mohon maaf, sistem mengalami kendala sementara saat memproses halaman ini. Silakan coba muat ulang halaman.
         </p>
 
+        {error && (
+          <div className="text-left bg-red-50 border border-red-200 text-red-700 p-3 rounded-lg text-xs font-mono break-all space-y-1">
+            <p className="font-bold text-red-800">Detail Kendala:</p>
+            <p>{error.message || 'Error tidak diketahui'}</p>
+            {error.digest && <p className="text-[10px] text-red-500">Digest: {error.digest}</p>}
+          </div>
+        )}
+
         <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
           <Button
             onClick={() => reset()}

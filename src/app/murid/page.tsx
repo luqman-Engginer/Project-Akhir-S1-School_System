@@ -149,7 +149,7 @@ export default async function MuridHomePage() {
           </Link>
         }
       >
-        {dashboardData && dashboardData.upcoming_assignments.length > 0 ? (
+        {dashboardData?.upcoming_assignments && dashboardData.upcoming_assignments.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.upcoming_assignments.slice(0, 5).map((item) => {
               const deadlineInfo = formatRelativeDeadline(item.deadline);
@@ -224,7 +224,7 @@ export default async function MuridHomePage() {
           </Link>
         }
       >
-        {dashboardData && dashboardData.today_schedule.length > 0 ? (
+        {dashboardData?.today_schedule && dashboardData.today_schedule.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.today_schedule.map((schedule) => (
               <ListRow
@@ -271,7 +271,7 @@ export default async function MuridHomePage() {
           </Link>
         }
       >
-        {dashboardData && dashboardData.latest_grades.length > 0 ? (
+        {dashboardData?.latest_grades && dashboardData.latest_grades.length > 0 ? (
           <div className="space-y-1">
             {dashboardData.latest_grades.slice(0, 3).map((grade) => (
               <ListRow

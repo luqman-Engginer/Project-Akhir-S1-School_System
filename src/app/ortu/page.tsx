@@ -242,8 +242,8 @@ export default async function OrtuHomePage() {
               </Link>
             }
           >
-            {activeChild.late_assignments.length > 0 ||
-            activeChild.upcoming_assignments.length > 0 ? (
+            {(activeChild.late_assignments?.length ?? 0) > 0 ||
+            (activeChild.upcoming_assignments?.length ?? 0) > 0 ? (
               <div className="space-y-1">
                 {/* Tugas terlambat */}
                 {activeChild.late_assignments.map((item) => (
@@ -303,7 +303,7 @@ export default async function OrtuHomePage() {
             title={`Nilai Terbaru (${activeChild.name})`}
             subtitle="Nilai hasil pemeriksaan tugas oleh guru"
           >
-            {activeChild.latest_grades.length > 0 ? (
+            {(activeChild.latest_grades?.length ?? 0) > 0 ? (
               <div className="space-y-1">
                 {activeChild.latest_grades.slice(0, 3).map((grade, idx) => (
                   <ListRow
@@ -350,7 +350,7 @@ export default async function OrtuHomePage() {
               </Link>
             }
           >
-            {dashboardData && dashboardData.announcements.length > 0 ? (
+            {dashboardData?.announcements && dashboardData.announcements.length > 0 ? (
               <div className="space-y-1">
                 {dashboardData.announcements.slice(0, 3).map((item) => (
                   <ListRow

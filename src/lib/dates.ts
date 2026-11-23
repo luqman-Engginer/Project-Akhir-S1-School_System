@@ -44,7 +44,7 @@ export function getGreetingWIB(referenceDate: Date = new Date()): string {
  * Contoh default: "Rabu, 18 November 2026"
  */
 export function formatWIB(
-  date: string | Date,
+  date: string | Date | null | undefined,
   options: Intl.DateTimeFormatOptions = {
     weekday: 'long',
     day: 'numeric',
@@ -52,56 +52,75 @@ export function formatWIB(
     year: 'numeric',
   }
 ): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
-  return new Intl.DateTimeFormat('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    ...options,
-  }).format(d);
+  if (isNaN(d.getTime())) return '-';
+  try {
+    return new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      ...options,
+    }).format(d);
+  } catch {
+    return '-';
+  }
 }
 
 /**
  * Memformat tanggal dan jam dalam zona waktu WIB.
  * Contoh: "18 November 2026, 14:30 WIB"
  */
-export function formatDateTimeWIB(date: string | Date): string {
+export function formatDateTimeWIB(date: string | Date | null | undefined): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
-  const formatted = new Intl.DateTimeFormat('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).format(d);
+  if (isNaN(d.getTime())) return '-';
+  try {
+    const formatted = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    }).format(d);
 
-  return `${formatted.replace(':', '.')} WIB`;
+    return `${formatted.replace(':', '.')} WIB`;
+  } catch {
+    return '-';
+  }
 }
 
 /**
  * Memformat waktu jam WIB saja.
  * Contoh: "jam 14.00" atau "14.00"
  */
-export function formatTimeWIB(date: string | Date, prefixJam = true): string {
+export function formatTimeWIB(date: string | Date | null | undefined, prefixJam = true): string {
+  if (!date) return '-';
   const d = typeof date === 'string' ? new Date(date) : date;
-  const timeStr = new Intl.DateTimeFormat('id-ID', {
-    timeZone: 'Asia/Jakarta',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  })
-    .format(d)
-    .replace(':', '.');
+  if (isNaN(d.getTime())) return '-';
+  try {
+    const timeStr = new Intl.DateTimeFormat('id-ID', {
+      timeZone: 'Asia/Jakarta',
+      hour: '2-digit',
+      minute: '2-digit',
+      hourCycle: 'h23',
+    })
+      .format(d)
+      .replace(':', '.');
 
-  return prefixJam ? `jam ${timeStr}` : timeStr;
+    return prefixJam ? `jam ${timeStr}` : timeStr;
+  } catch {
+    return '-';
+  }
 }
 
 /**
  * Memformat rentang jam "HH:MM:SS" atau "HH:MM" menjadi "07.00 - 08.30".
  */
-export function formatTimeSpan(startTime: string, endTime: string): string {
-  const cleanStart = startTime.slice(0, 5).replace(':', '.');
-  const cleanEnd = endTime.slice(0, 5).replace(':', '.');
+export function formatTimeSpan(startTime: string | null | undefined, endTime: string | null | undefined): string {
+  if (!startTime || !endTime) return '-';
+  const cleanStart = String(startTime).slice(0, 5).replace(':', '.');
+  const cleanEnd = String(endTime).slice(0, 5).replace(':', '.');
   return `${cleanStart} - ${cleanEnd}`;
 }
 
@@ -109,10 +128,12 @@ export function formatTimeSpan(startTime: string, endTime: string): string {
  * Memformat waktu lampau secara relatif ("5 menit lalu", "2 jam lalu", "kemarin", dsb.)
  */
 export function formatRelativeTime(
-  date: string | Date,
+  date: string | Date | null | undefined,
   referenceDate: Date = new Date()
 ): string {
+  if (!date) return 'baru saja';
   const target = typeof date === 'string' ? new Date(date) : date;
+  if (isNaN(target.getTime())) return 'baru saja';
   const diffMs = referenceDate.getTime() - target.getTime();
 
   if (diffMs < 0) {
@@ -141,10 +162,16 @@ export function formatRelativeTime(
  * Memberikan info isUrgent jika batas waktu < 24 jam ke depan.
  */
 export function formatRelativeDeadline(
-  deadline: string | Date,
+  deadline: string | Date | null | undefined,
   referenceDate: Date = new Date()
 ): { label: string; isUrgent: boolean; isOverdue: boolean } {
+  if (!deadline) {
+    return { label: '-', isUrgent: false, isOverdue: false };
+  }
   const target = typeof deadline === 'string' ? new Date(deadline) : deadline;
+  if (isNaN(target.getTime())) {
+    return { label: '-', isUrgent: false, isOverdue: false };
+  }
   const diffMs = target.getTime() - referenceDate.getTime();
   const isOverdue = diffMs < 0;
 
