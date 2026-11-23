@@ -283,7 +283,12 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  IF is_admin() THEN
+  -- Izinkan jika dipanggil oleh sistem/trigger internal (auth.uid() is null),
+  -- atau oleh service_role / superuser, atau oleh admin sekolah
+  IF auth.uid() IS NULL OR
+     current_user IN ('postgres', 'service_role', 'supabase_admin', 'supabase_auth_admin') OR
+     (current_setting('role', true) = 'service_role') OR
+     is_admin() THEN
     RETURN NEW;
   END IF;
 
