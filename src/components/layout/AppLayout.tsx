@@ -14,7 +14,6 @@ import {
   MessageSquare,
   TrendingUp,
   LogOut,
-  Sparkles,
 } from 'lucide-react';
 import { Avatar } from '../ui/Avatar';
 import { TextScaleToggle } from '../ui/TextScaleToggle';
@@ -46,22 +45,22 @@ const ROLE_LABELS: Record<UserRole, { title: string; badge: string; badgeClass: 
   admin: {
     title: 'Admin Sekolah',
     badge: 'Admin',
-    badgeClass: 'bg-stone-800 text-stone-100',
+    badgeClass: 'bg-stone-900 text-white',
   },
   teacher: {
-    title: 'Ruang Guru',
+    title: 'Ruang Guru & Wali Kelas',
     badge: 'Guru',
-    badgeClass: 'bg-[var(--color-primary)] text-white',
+    badgeClass: 'bg-[#144D40] text-white',
   },
   student: {
-    title: 'Ruang Murid',
+    title: 'Ruang Murid SMK',
     badge: 'Murid',
-    badgeClass: 'bg-[#2A6B5B] text-white',
+    badgeClass: 'bg-[#0E5A8A] text-white',
   },
   parent: {
-    title: 'Ruang Orang Tua',
+    title: 'Ruang Orang Tua / Wali',
     badge: 'Orang Tua',
-    badgeClass: 'bg-[#C8643B] text-white',
+    badgeClass: 'bg-[#A8481D] text-white',
   },
 };
 
@@ -74,7 +73,7 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItemConfig[]> = {
   ],
   teacher: [
     { label: 'Beranda', href: '/guru', icon: Home },
-    { label: 'Kelas', href: '/guru/kelas', icon: Users },
+    { label: 'Kelas & Absensi', href: '/guru/kelas', icon: Users },
     { label: 'Pesan', href: '/guru/pesan', icon: MessageSquare },
     { label: 'Pengumuman', href: '/guru/pengumuman', icon: Megaphone },
   ],
@@ -86,17 +85,10 @@ const ROLE_NAV_ITEMS: Record<UserRole, NavItemConfig[]> = {
   ],
   parent: [
     { label: 'Beranda', href: '/ortu', icon: Home },
-    { label: 'Perkembangan', href: '/ortu/perkembangan', icon: TrendingUp },
+    { label: 'Perkembangan Anak', href: '/ortu/perkembangan', icon: TrendingUp },
     { label: 'Pesan Guru', href: '/ortu/pesan', icon: MessageSquare },
     { label: 'Pengumuman', href: '/ortu/pengumuman', icon: Megaphone },
   ],
-};
-
-const ROLE_NOTIFICATION_HREF: Record<UserRole, string> = {
-  admin: '/admin/pengumuman',
-  teacher: '/guru/pesan',
-  student: '/murid/pesan',
-  parent: '/ortu/pesan',
 };
 
 export function AppLayout({
@@ -110,41 +102,45 @@ export function AppLayout({
   const pathname = usePathname();
   const navItems = ROLE_NAV_ITEMS[role] || [];
   const roleMeta = ROLE_LABELS[role];
-  const notificationHref = ROLE_NOTIFICATION_HREF[role];
 
   return (
-    <div className="min-h-screen bg-[var(--color-bg)] flex flex-col md:flex-row text-[var(--color-text)]">
+    <div className="min-h-screen bg-[#FAF7F2] flex flex-col md:flex-row text-stone-900 font-sans">
       {/* ============================================================ */}
-      {/* DESKTOP SIDEBAR (>= 768px)                                   */}
+      {/* 1. DESKTOP SIDEBAR (>= 768px)                                */}
       {/* ============================================================ */}
-      <aside className="hidden md:flex flex-col w-64 lg:w-72 shrink-0 bg-[var(--color-surface)] border-r border-[var(--color-border)] min-h-screen sticky top-0 h-screen p-4.5 justify-between">
+      <aside className="hidden md:flex flex-col w-64 lg:w-72 shrink-0 bg-white border-r border-stone-200/90 min-h-screen sticky top-0 h-screen p-5 justify-between shadow-2xs z-20">
         <div className="flex flex-col">
           {/* Logo Brand */}
-          <div className="flex items-center justify-between pb-4 mb-4 border-b border-[#F0EBE1]">
-            <Link href={`/${role === 'teacher' ? 'guru' : role === 'student' ? 'murid' : role === 'parent' ? 'ortu' : 'admin'}`} className="flex items-center gap-2.5">
-              <span className="w-8 h-8 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center font-display font-bold text-base shadow-xs">
+          <div className="flex items-center justify-between pb-4 mb-4 border-b border-stone-200/80">
+            <Link
+              href={`/${role === 'teacher' ? 'guru' : role === 'student' ? 'murid' : role === 'parent' ? 'ortu' : 'admin'}`}
+              className="flex items-center gap-2.5 group"
+            >
+              <span className="w-9 h-9 rounded-xl bg-[#144D40] text-white flex items-center justify-center font-display font-extrabold text-lg shadow-xs ring-2 ring-[#144D40]/15">
                 S
               </span>
-              <span className="font-display font-bold text-xl text-[var(--color-primary)] tracking-tight">
+              <span className="font-display font-extrabold text-xl text-stone-900 tracking-tight group-hover:text-[#144D40] transition-colors">
                 Sekolahku
               </span>
             </Link>
             <span
-              className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${roleMeta.badgeClass}`}
+              className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${roleMeta.badgeClass}`}
             >
               {roleMeta.badge}
             </span>
           </div>
 
-          {/* Child Switcher (Parent with multiple children) */}
+          {/* Child Switcher (Khusus Orang Tua dengan banyak anak) */}
           {role === 'parent' && (
-            <ChildSwitcher
-              childrenList={childrenList}
-              activeChildId={activeChildId}
-            />
+            <div className="mb-4">
+              <ChildSwitcher
+                childrenList={childrenList}
+                activeChildId={activeChildId}
+              />
+            </div>
           )}
 
-          {/* Desktop Navigation Links */}
+          {/* Navigasi Utama */}
           <nav className="space-y-1.5" aria-label="Navigasi Utama">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -158,13 +154,18 @@ export function AppLayout({
                   key={item.href}
                   href={item.href}
                   aria-current={isActive ? 'page' : undefined}
-                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-[10px] text-sm font-medium transition-all min-h-[44px] ${
+                  className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all min-h-[44px] ${
                     isActive
-                      ? 'bg-[#E8F1EE] text-[var(--color-primary)] font-bold shadow-xs ring-1 ring-[#144D40]/10'
-                      : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[#F5F1E9]'
+                      ? 'bg-emerald-50 text-[#144D40] border-2 border-emerald-200 shadow-2xs'
+                      : 'text-stone-600 hover:text-stone-900 hover:bg-stone-100/80 border-2 border-transparent'
                   }`}
                 >
-                  <Icon aria-hidden={true} className={`w-5 h-5 shrink-0 ${isActive ? 'text-[var(--color-primary)]' : 'text-[#859296]'}`} />
+                  <Icon
+                    aria-hidden={true}
+                    className={`w-5 h-5 shrink-0 ${
+                      isActive ? 'text-[#144D40]' : 'text-stone-400'
+                    }`}
+                  />
                   <span>{item.label}</span>
                 </Link>
               );
@@ -172,25 +173,16 @@ export function AppLayout({
           </nav>
         </div>
 
-        {/* Bottom Sidebar: TextScale & Profile */}
-        <div className="pt-4 border-t border-[#F0EBE1] space-y-3">
-          <div className="flex items-center justify-between px-1">
-            <TextScaleToggle />
-            <NotificationPanel
-              profileId={user.id}
-              initialUnreadCount={unreadCount}
-            />
-          </div>
-
-          {/* User Profile Card */}
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-[#FAF7F2] border border-[#F0EBE1] shadow-2xs">
-            <div className="flex items-center gap-2.5 min-w-0">
+        {/* Footer Sidebar: User Profile Card & Logout */}
+        <div className="pt-4 border-t border-stone-200/80">
+          <div className="flex items-center justify-between p-3 rounded-xl bg-[#FAF7F2] border border-stone-200/90 shadow-2xs">
+            <div className="flex items-center gap-3 min-w-0">
               <Avatar name={user.fullName || 'Pengguna'} size="sm" />
               <div className="min-w-0">
-                <div className="text-xs font-bold text-[var(--color-text)] truncate max-w-[120px]">
+                <div className="text-xs font-bold text-stone-900 truncate max-w-[125px]">
                   {user.fullName || 'Pengguna'}
                 </div>
-                <div className="text-[11px] text-[var(--color-text-muted)] truncate max-w-[120px]">
+                <div className="text-[11px] font-medium text-stone-500 truncate max-w-[125px]">
                   {user.email}
                 </div>
               </div>
@@ -199,8 +191,8 @@ export function AppLayout({
             <form action="/auth/sign-out" method="POST">
               <button
                 type="submit"
-                className="p-1.5 rounded-lg text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-                title="Keluar Akun"
+                className="p-2 rounded-lg text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                title="Keluar dari akun"
                 aria-label="Keluar dari akun"
               >
                 <LogOut className="w-4 h-4" />
@@ -211,58 +203,76 @@ export function AppLayout({
       </aside>
 
       {/* ============================================================ */}
-      {/* MOBILE TOP BAR (< 768px)                                     */}
+      {/* 2. AREA KONTEN UTAMA DENGAN TOP BAR TERPADU                 */}
       {/* ============================================================ */}
-      <header className="md:hidden sticky top-0 z-30 bg-[var(--color-surface)] border-b border-[var(--color-border)] px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="w-7 h-7 rounded-lg bg-[var(--color-primary)] text-white flex items-center justify-center font-display font-bold text-sm shadow-xs">
-            S
-          </span>
-          <span className="font-display font-bold text-lg text-[var(--color-primary)]">
-            Sekolahku
-          </span>
-          <span
-            className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${roleMeta.badgeClass}`}
-          >
-            {roleMeta.badge}
-          </span>
-        </div>
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Bilah Header Atas (Responsif Desktop & Mobile) */}
+        <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-stone-200/90 px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between shadow-2xs">
+          {/* Sisi Kiri Header */}
+          <div className="flex items-center gap-3">
+            {/* Logo Mobile */}
+            <div className="md:hidden flex items-center gap-2.5">
+              <span className="w-8 h-8 rounded-lg bg-[#144D40] text-white flex items-center justify-center font-display font-bold text-sm shadow-xs">
+                S
+              </span>
+              <span className="font-display font-extrabold text-lg text-stone-900">
+                Sekolahku
+              </span>
+            </div>
 
-        <div className="flex items-center gap-2">
-          <TextScaleToggle />
-          <NotificationPanel
-            profileId={user.id}
-            initialUnreadCount={unreadCount}
-          />
-          <form action="/auth/sign-out" method="POST">
-            <button
-              type="submit"
-              className="p-1.5 rounded-lg text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors"
-              title="Keluar Akun"
-              aria-label="Keluar dari akun"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </form>
-        </div>
-      </header>
+            {/* Breadcrumb Info Desktop */}
+            <div className="hidden md:flex items-center gap-2.5">
+              <span className={`text-xs font-bold px-3 py-1 rounded-full ${roleMeta.badgeClass}`}>
+                {roleMeta.title}
+              </span>
+              <span className="text-stone-300 font-bold">&bull;</span>
+              <span className="text-xs font-semibold text-stone-500">
+                SMK Sekolahku &bull; Semester Genap 2025/2026
+              </span>
+            </div>
+          </div>
+
+          {/* Sisi Kanan Header: Kontrol Teks, Lonceng Notifikasi & Logout Mobile */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <TextScaleToggle />
+            
+            {/* Lonceng Notifikasi Tunggal yang Terbuka ke Bawah Secara Sempurna */}
+            <NotificationPanel
+              profileId={user.id}
+              initialUnreadCount={unreadCount}
+            />
+
+            {/* Tombol Logout Cepat Khusus Mobile */}
+            <div className="md:hidden pl-1">
+              <form action="/auth/sign-out" method="POST">
+                <button
+                  type="submit"
+                  className="p-2 rounded-xl text-stone-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                  title="Keluar dari akun"
+                  aria-label="Keluar dari akun"
+                >
+                  <LogOut className="w-4 h-4" />
+                </button>
+              </form>
+            </div>
+          </div>
+        </header>
+
+        {/* Konten Halaman */}
+        <main className="flex-1 pb-24 md:pb-12">
+          <div className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+            {children}
+          </div>
+        </main>
+      </div>
 
       {/* ============================================================ */}
-      {/* MAIN CONTENT AREA                                            */}
-      {/* ============================================================ */}
-      <main className="flex-1 flex flex-col min-w-0 pb-24 md:pb-8">
-        <div className="w-full max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 flex-1">
-          {children}
-        </div>
-      </main>
-
-      {/* ============================================================ */}
-      {/* MOBILE BOTTOM NAVIGATION BAR (< 768px)                        */}
+      {/* 3. MOBILE BOTTOM NAVIGATION BAR (< 768px)                    */}
       {/* ============================================================ */}
       <nav
         aria-label="Navigasi Cepat Mobile"
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--color-surface)] border-t border-[var(--color-border)] px-2 py-1 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]"
-        style={{ paddingBottom: 'calc(0.25rem + env(safe-area-inset-bottom, 0px))' }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/98 backdrop-blur-md border-t border-stone-200/90 px-2 py-1.5 shadow-[0_-4px_16px_rgba(0,0,0,0.05)]"
+        style={{ paddingBottom: 'calc(0.4rem + env(safe-area-inset-bottom, 0px))' }}
       >
         <div className="grid grid-cols-4 gap-1">
           {navItems.map((item) => {
@@ -277,15 +287,15 @@ export function AppLayout({
                 key={item.href}
                 href={item.href}
                 aria-current={isActive ? 'page' : undefined}
-                className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-[8px] transition-colors ${
+                className={`flex flex-col items-center justify-center min-h-[48px] py-1 px-1 rounded-xl transition-all ${
                   isActive
-                    ? 'text-[var(--color-primary)] font-semibold'
-                    : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'
+                    ? 'text-[#144D40] font-bold bg-emerald-50'
+                    : 'text-stone-500 hover:text-stone-900 font-medium'
                 }`}
               >
                 <div
-                  className={`p-1 rounded-full ${
-                    isActive ? 'bg-[#E8F1EE]' : 'bg-transparent'
+                  className={`p-1 rounded-lg ${
+                    isActive ? 'text-[#144D40]' : 'text-stone-400'
                   }`}
                 >
                   <Icon className="w-5 h-5" aria-hidden={true} />

@@ -13,6 +13,7 @@ import {
   FileCheck,
   Megaphone,
   Clock,
+  Sparkles,
 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import {
@@ -44,11 +45,7 @@ export function NotificationPanel({
   const [isLoading, setIsLoading] = useState(false);
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Sync initial count
-  useEffect(() => {
-    setUnreadCount(initialUnreadCount);
-  }, [initialUnreadCount]);
-
+  // Fungsi sinkronisasi data notifikasi dari database
   const loadNotifications = useCallback(async () => {
     setIsLoading(true);
     try {
@@ -56,18 +53,24 @@ export function NotificationPanel({
       setNotifications(data.notifications);
       setUnreadCount(data.unreadCount);
     } catch {
-      // Ignore background errors
+      // Fallback
     } finally {
       setIsLoading(false);
     }
   }, []);
+
+  // Muat notifikasi saat pertama kali halaman dibuka agar badge & list selalu sinkron
+  useEffect(() => {
+    if (profileId) {
+      loadNotifications();
+    }
+  }, [profileId, loadNotifications]);
 
   // Realtime subscription + Fallback Polling (60s)
   useEffect(() => {
     if (!profileId) return;
 
     const supabase = createClient();
-    // Gunakan suffix acak agar instance ganda (desktop sidebar & mobile header) tidak konflik nama channel
     const uniqueChannelName = `notif:${profileId}:${Math.random().toString(36).substring(2, 8)}`;
     let channel: ReturnType<typeof supabase.channel> | null = null;
 
@@ -87,7 +90,7 @@ export function NotificationPanel({
             setNotifications((prev) => [newNotif, ...prev.slice(0, 19)]);
             setUnreadCount((c) => c + 1);
 
-            // Tampilkan Toast mengambang sesuai PRD
+            // Tampilkan Toast notifikasi mengambang
             toast(`${newNotif.title}: ${newNotif.body}`, 'info');
           }
         )
@@ -96,7 +99,6 @@ export function NotificationPanel({
       console.warn('Realtime subscription error (fallback to polling):', err);
     }
 
-    // Fallback polling interval 60s
     const pollInterval = setInterval(() => {
       loadNotifications();
     }, 60000);
@@ -111,7 +113,6 @@ export function NotificationPanel({
     };
   }, [profileId, toast, loadNotifications]);
 
-  // Load saat dibuka jika belum dimuat
   const handleToggle = () => {
     if (!isOpen) {
       loadNotifications();
@@ -119,7 +120,7 @@ export function NotificationPanel({
     setIsOpen(!isOpen);
   };
 
-  // Close when clicking outside in desktop
+  // Tutup panel saat klik di luar atau tekan tombol Escape
   useEffect(() => {
     if (!isOpen) return;
 
@@ -168,31 +169,31 @@ export function NotificationPanel({
   const getNotifIcon = (type: string) => {
     switch (type) {
       case 'attendance':
-        return <ClipboardList className="w-4 h-4 text-[var(--color-primary)]" />;
+        return <ClipboardList className="w-4 h-4 text-emerald-800" />;
       case 'leave':
-        return <Clock className="w-4 h-4 text-[#C8643B]" />;
+        return <Clock className="w-4 h-4 text-amber-800" />;
       case 'assignment':
-        return <FileCheck className="w-4 h-4 text-[#3D5A80]" />;
+        return <FileCheck className="w-4 h-4 text-sky-800" />;
       case 'grade':
-        return <FileCheck className="w-4 h-4 text-[var(--color-primary)]" />;
+        return <FileCheck className="w-4 h-4 text-emerald-800" />;
       case 'message':
-        return <MessageSquare className="w-4 h-4 text-[#3D5A80]" />;
+        return <MessageSquare className="w-4 h-4 text-indigo-800" />;
       case 'reminder':
-        return <Bell className="w-4 h-4 text-[#C8643B]" />;
+        return <Bell className="w-4 h-4 text-amber-800" />;
       case 'announcement':
-        return <Megaphone className="w-4 h-4 text-[#C8643B]" />;
+        return <Megaphone className="w-4 h-4 text-emerald-800" />;
       default:
-        return <AlertCircle className="w-4 h-4 text-[var(--color-text-muted)]" />;
+        return <AlertCircle className="w-4 h-4 text-stone-600" />;
     }
   };
 
   return (
     <div className={`relative ${className}`} ref={panelRef}>
-      {/* Trigger Button */}
+      {/* Tombol Lonceng Notifikasi */}
       <button
         type="button"
         onClick={handleToggle}
-        className="relative p-2 rounded-full text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[#F3EFEA] transition-colors focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+        className="relative p-2 rounded-xl text-stone-600 hover:text-stone-900 hover:bg-stone-100 transition-colors focus-visible:outline-2 focus-visible:outline-[#144D40] min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
         aria-label={
           unreadCount > 0
             ? `Notifikasi: ${unreadCount} belum dibaca`
@@ -204,7 +205,7 @@ export function NotificationPanel({
         {unreadCount > 0 && (
           <span
             aria-live="polite"
-            className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[var(--color-accent)] text-white text-[10px] font-bold flex items-center justify-center border-2 border-white pointer-events-none"
+            className="absolute top-1.5 right-1.5 min-w-[19px] h-[19px] px-1 rounded-full bg-amber-600 text-white text-[10px] font-black flex items-center justify-center border-2 border-white shadow-2xs pointer-events-none"
           >
             <span className="sr-only">{unreadCount} notifikasi baru belum dibaca</span>
             <span aria-hidden="true">{unreadCount > 9 ? '9+' : unreadCount}</span>
@@ -212,47 +213,51 @@ export function NotificationPanel({
         )}
       </button>
 
-      {/* Popover (Desktop) / Bottom Sheet (Mobile) */}
+      {/* Popover / Dropdown Panel */}
       {isOpen && (
         <>
-          {/* Backdrop on mobile */}
+          {/* Backdrop mobile */}
           <div
-            className="fixed inset-0 bg-black/25 backdrop-blur-[1px] z-40 md:hidden animate-in fade-in duration-150"
+            className="fixed inset-0 bg-black/30 backdrop-blur-xs z-40 sm:hidden animate-in fade-in duration-150"
             onClick={() => setIsOpen(false)}
             aria-hidden={true}
           />
 
           <div
             className="
-              fixed md:absolute bottom-0 md:bottom-auto left-0 md:left-auto right-0 md:right-0
-              w-full md:w-96 max-h-[85vh] md:max-h-[520px]
-              bg-[var(--color-surface)] border border-[var(--color-border)]
-              rounded-t-[20px] md:rounded-[14px] shadow-xl md:shadow-lg
-              z-50 md:z-40 md:mt-2 flex flex-col overflow-hidden
-              animate-in slide-in-from-bottom-4 md:zoom-in-95 duration-150
+              fixed sm:absolute bottom-0 sm:bottom-auto left-0 sm:left-auto right-0 top-auto sm:top-full
+              w-full sm:w-96 max-h-[85vh] sm:max-h-[520px]
+              bg-white border-2 border-stone-200/95
+              rounded-t-2xl sm:rounded-2xl shadow-2xl
+              z-50 sm:mt-2.5 flex flex-col overflow-hidden
+              animate-in slide-in-from-bottom-4 sm:slide-in-from-top-2 sm:zoom-in-95 duration-150
             "
             role="region"
             aria-label="Panel Notifikasi"
           >
-            {/* Header */}
-            <div className="px-4 py-3.5 border-b border-[#F0EBE1] flex items-center justify-between bg-[#FAF7F2]">
-              <div className="flex items-center gap-2">
-                <h3 className="font-display font-bold text-sm sm:text-base text-[var(--color-text)]">
+            {/* Header Panel */}
+            <div className="px-4 sm:px-5 py-3.5 border-b border-stone-200 bg-[#FAF7F2] flex items-center justify-between shrink-0">
+              <div className="flex items-center gap-2.5">
+                <h3 className="font-display font-extrabold text-sm sm:text-base text-stone-900">
                   Notifikasi
                 </h3>
-                {unreadCount > 0 && (
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-[var(--status-danger-bg)] text-[var(--status-danger-text)] font-semibold border border-[var(--status-danger-border)]">
+                {unreadCount > 0 ? (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-950 font-bold border border-amber-300">
                     {unreadCount} baru
+                  </span>
+                ) : (
+                  <span className="text-xs px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-semibold border border-stone-200">
+                    Semua terbaca
                   </span>
                 )}
               </div>
 
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-2">
                 {unreadCount > 0 && (
                   <button
                     type="button"
                     onClick={handleMarkAllRead}
-                    className="inline-flex items-center gap-1 text-xs text-[var(--color-primary)] hover:underline font-medium px-2 py-1 rounded-[6px] focus-visible:outline-2 focus-visible:outline-[var(--color-primary)] cursor-pointer"
+                    className="inline-flex items-center gap-1.5 text-xs text-[#144D40] hover:text-[#0F3B31] font-bold px-2.5 py-1 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer"
                     title="Tandai semua telah dibaca"
                   >
                     <CheckCheck className="w-3.5 h-3.5" />
@@ -262,7 +267,7 @@ export function NotificationPanel({
                 <button
                   type="button"
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 text-[var(--color-text-muted)] hover:text-[var(--color-text)] rounded-full hover:bg-black/5"
+                  className="p-1.5 text-stone-500 hover:text-stone-900 rounded-lg hover:bg-stone-200/60 transition-colors"
                   aria-label="Tutup panel notifikasi"
                 >
                   <X className="w-4 h-4" />
@@ -271,17 +276,17 @@ export function NotificationPanel({
             </div>
 
             {/* List Body */}
-            <div className="flex-1 overflow-y-auto divide-y divide-[#F4EFE6] max-h-[420px]">
+            <div className="flex-1 overflow-y-auto divide-y divide-stone-100 max-h-[400px]">
               {isLoading && notifications.length === 0 ? (
-                <div className="p-6 text-center text-xs text-[var(--color-text-muted)]">
-                  Memuat notifikasi...
+                <div className="p-8 text-center text-xs font-medium text-stone-500">
+                  Memuat data notifikasi terbaru...
                 </div>
               ) : notifications.length === 0 ? (
-                <div className="p-6">
+                <div className="p-8">
                   <EmptyState
                     icon={Bell}
                     title="Belum Ada Notifikasi"
-                    description="Pemberitahuan absensi, tugas, dan pesan penting akan muncul di sini."
+                    description="Pemberitahuan absensi harian, tenggat tugas, dan pesan konsultasi akan tampil di sini."
                   />
                 </div>
               ) : (
@@ -291,48 +296,53 @@ export function NotificationPanel({
                     type="button"
                     onClick={() => handleNotificationClick(n)}
                     className={`
-                      w-full text-left p-3.5 sm:p-4 flex items-start gap-3 transition-colors cursor-pointer
-                      hover:bg-[#F3EFEA] focus-visible:outline-2 focus-visible:outline-[var(--color-primary)]
-                      ${!n.is_read ? 'bg-[#FCFAF7]' : 'bg-transparent'}
+                      w-full text-left p-4 flex items-start gap-3.5 transition-colors cursor-pointer
+                      hover:bg-stone-50/90 focus-visible:outline-2 focus-visible:outline-[#144D40]
+                      ${!n.is_read ? 'bg-amber-50/40' : 'bg-white'}
                     `}
                   >
-                    {/* Unread indicator / icon */}
+                    {/* Icon bulat dengan indikator status belum dibaca */}
                     <div className="shrink-0 mt-0.5 relative">
-                      <div className="w-7 h-7 rounded-full bg-[#EFEAE2] flex items-center justify-center">
+                      <div className="w-9 h-9 rounded-xl bg-stone-100 border border-stone-200 flex items-center justify-center">
                         {getNotifIcon(n.type)}
                       </div>
                       {!n.is_read && (
-                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-[var(--color-accent)] border border-white" />
+                        <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-amber-600 border-2 border-white shadow-2xs" />
                       )}
                     </div>
 
-                    {/* Content */}
+                    {/* Konten Notifikasi */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span
                           className={`text-xs sm:text-sm leading-snug line-clamp-1 ${
                             !n.is_read
-                              ? 'font-bold text-[var(--color-text)]'
-                              : 'font-medium text-[var(--color-text)]'
+                              ? 'font-extrabold text-stone-900'
+                              : 'font-semibold text-stone-800'
                           }`}
                         >
                           {n.title}
                         </span>
-                        <span className="shrink-0 text-[10px] text-[var(--color-text-muted)] whitespace-nowrap">
+                        <span className="shrink-0 text-[11px] font-bold text-stone-400">
                           {formatRelativeTime(n.created_at)}
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--color-text-muted)] mt-0.5 line-clamp-2 leading-relaxed">
+                      <p className="text-xs text-stone-600 mt-1 line-clamp-2 leading-relaxed font-medium">
                         {n.body}
                       </p>
                     </div>
 
                     {n.link && (
-                      <ExternalLink className="w-3.5 h-3.5 text-[#A5AFB2] shrink-0 mt-1" />
+                      <ExternalLink className="w-3.5 h-3.5 text-stone-400 shrink-0 mt-1" />
                     )}
                   </button>
                 ))
               )}
+            </div>
+
+            {/* Footer Panel */}
+            <div className="p-3 bg-[#FAF7F2] border-t border-stone-200 text-center text-[11px] font-semibold text-stone-500 shrink-0">
+              Sinkronisasi otomatis &bull; SMK Sekolahku
             </div>
           </div>
         </>
