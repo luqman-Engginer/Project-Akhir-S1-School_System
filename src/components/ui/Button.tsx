@@ -33,40 +33,40 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const isBusy = isLoading || loading;
 
-    // Base styles: min-h-44px touch target, rounded 10px, clear focus ring
+    // Base styles: min-h-44px touch target, rounded 12px, single-line horizontal alignment
     const baseStyle =
-      'inline-flex items-center justify-center font-medium transition-colors select-none rounded-[10px] focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer';
+      'inline-flex items-center justify-center font-bold tracking-tight transition-all select-none rounded-xl focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer whitespace-nowrap text-center shrink-0';
 
     const variantStyles = {
       primary:
-        'bg-[#1F5C4D] text-white hover:bg-[#184A3E] active:bg-[#133C32] focus-visible:ring-[#1F5C4D] shadow-sm',
+        'bg-[#144D40] text-white hover:bg-[#0F3B31] active:bg-[#0A2922] focus-visible:ring-[#144D40] shadow-xs hover:shadow-sm border border-[#144D40]',
       secondary:
-        'bg-white text-[#1F2A2E] border border-[#E6E0D6] hover:bg-[#F4F0E8] active:bg-[#ECE6DC] focus-visible:ring-[#1F5C4D] shadow-sm',
+        'bg-white text-stone-800 border-2 border-stone-200/90 hover:bg-stone-50 hover:border-stone-300 active:bg-stone-100 focus-visible:ring-[#144D40] shadow-2xs',
       quiet:
-        'bg-transparent text-[#1F5C4D] hover:bg-[#EBF3F0] active:bg-[#DDECE7] focus-visible:ring-[#1F5C4D]',
+        'bg-transparent text-[#144D40] hover:bg-emerald-50 active:bg-emerald-100/70 focus-visible:ring-[#144D40]',
       danger:
-        'bg-[#962828] text-white hover:bg-[#7D2020] active:bg-[#681919] focus-visible:ring-[#962828] shadow-sm',
+        'bg-red-700 text-white hover:bg-red-800 active:bg-red-900 focus-visible:ring-red-600 shadow-xs border border-red-700',
     };
 
     const sizeStyles = {
-      sm: 'min-h-[38px] px-3.5 py-1.5 text-sm gap-1.5',
-      md: 'min-h-[44px] px-4 py-2.5 text-base gap-2',
-      lg: 'min-h-[48px] px-6 py-3 text-lg gap-2.5',
+      sm: 'min-h-[38px] px-3.5 py-1.5 text-xs sm:text-sm gap-2',
+      md: 'min-h-[44px] px-4.5 py-2.5 text-sm sm:text-base gap-2.5',
+      lg: 'min-h-[48px] px-6 py-3 text-base sm:text-lg gap-3',
     };
 
     const combinedClasses = `${baseStyle} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`;
 
     const innerContent = isBusy ? (
-      <>
-        <Loader2 className="h-4 w-4 animate-spin" aria-hidden={true} />
+      <span className="inline-flex items-center justify-center gap-2 whitespace-nowrap">
+        <Loader2 className="h-4 w-4 animate-spin shrink-0" aria-hidden={true} />
         <span>Memproses...</span>
-      </>
+      </span>
     ) : (
-      <>
+      <span className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap leading-none">
         {leftIcon && <span className="inline-flex shrink-0">{leftIcon}</span>}
-        <span>{children}</span>
+        {children}
         {rightIcon && <span className="inline-flex shrink-0">{rightIcon}</span>}
-      </>
+      </span>
     );
 
     if (href) {

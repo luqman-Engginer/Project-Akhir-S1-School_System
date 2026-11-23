@@ -136,21 +136,19 @@ export default async function MuridJadwalNilaiPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button href="/murid/izin" variant="secondary" size="sm">
-            <FileText className="w-4 h-4 mr-1.5" />
-            <span>Riwayat Izin</span>
+          <Button href="/murid/izin" variant="secondary" size="sm" leftIcon={<FileText className="w-4 h-4" />}>
+            Riwayat Izin
           </Button>
 
-          <Button href="/murid/izin/baru" variant="primary" size="sm">
-            <Plus className="w-4 h-4 mr-1.5" />
-            <span>Ajukan Izin</span>
+          <Button href="/murid/izin/baru" variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+            Ajukan Izin
           </Button>
         </div>
       </div>
 
       {/* Bagian 1: Rangkuman Nilai & Evaluasi Tugas */}
       <section className="space-y-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-bold font-display text-[var(--color-text)]">
               Rangkuman Nilai Akademik
@@ -159,9 +157,8 @@ export default async function MuridJadwalNilaiPage() {
               Rata-rata nilai per mata pelajaran dan catatan umpan balik bapak/ibu guru.
             </p>
           </div>
-          <Button href="/murid/tugas" variant="secondary" size="sm">
-            <BookOpen className="w-4 h-4 mr-1.5" />
-            <span>Semua Tugas</span>
+          <Button href="/murid/tugas" variant="secondary" size="sm" leftIcon={<BookOpen className="w-4 h-4" />}>
+            Semua Tugas
           </Button>
         </div>
 

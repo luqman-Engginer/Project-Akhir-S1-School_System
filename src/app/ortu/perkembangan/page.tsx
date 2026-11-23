@@ -137,14 +137,12 @@ export default async function OrtuPerkembanganPage() {
         </div>
 
         <div className="flex items-center gap-2.5">
-          <Button href="/ortu/izin" variant="secondary" size="sm">
-            <FileText className="w-4 h-4 mr-1.5" />
-            <span>Riwayat Izin</span>
+          <Button href="/ortu/izin" variant="secondary" size="sm" leftIcon={<FileText className="w-4 h-4" />}>
+            Riwayat Izin
           </Button>
 
-          <Button href="/ortu/izin/baru" variant="primary" size="sm">
-            <Plus className="w-4 h-4 mr-1.5" />
-            <span>Ajukan Izin</span>
+          <Button href="/ortu/izin/baru" variant="primary" size="sm" leftIcon={<Plus className="w-4 h-4" />}>
+            Ajukan Izin
           </Button>
         </div>
       </div>
