@@ -57,7 +57,7 @@ BEGIN
     v_related_id := v_related_text::uuid;
   EXCEPTION WHEN OTHERS THEN
     RETURN false;
-  END IF;
+  END;
 
   -- 1. Lampiran Tugas (assignment)
   IF v_kind = 'assignment' THEN
@@ -137,7 +137,7 @@ BEGIN
     v_related_id := v_related_text::uuid;
   EXCEPTION WHEN OTHERS THEN
     RETURN false;
-  END IF;
+  END;
 
   -- 1. Guru mengunggah tugas pada mapelnya
   IF v_kind = 'assignment' THEN
@@ -202,7 +202,7 @@ BEGIN
     v_related_id := v_related_text::uuid;
   EXCEPTION WHEN OTHERS THEN
     RETURN true;
-  END IF;
+  END;
 
   -- Untuk submission: tidak boleh dihapus jika sudah dinilai
   IF v_kind = 'submission' THEN
