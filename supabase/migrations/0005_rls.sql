@@ -959,4 +959,4 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.create_thread IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi (SECURITY DEFINER)';
+COMMENT ON FUNCTION public.create_thread(thread_category, text, uuid, uuid[], text) IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi (SECURITY DEFINER)';

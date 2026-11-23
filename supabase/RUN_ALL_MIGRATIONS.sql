@@ -2360,7 +2360,7 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.create_thread IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi (SECURITY DEFINER)';
+COMMENT ON FUNCTION public.create_thread(thread_category, text, uuid, uuid[], text) IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi (SECURITY DEFINER)';
 
 
 
@@ -4024,6 +4024,9 @@ COMMENT ON POLICY "leave_requests_cancel_by_submitter_policy" ON public.leave_re
 -- Mendukung lampiran opsional pada pesan pertama saat create_thread
 -- ====================================================================
 
+-- Drop overload lama tanpa parameter lampiran agar tidak terjadi ambiguitas nama fungsi
+DROP FUNCTION IF EXISTS public.create_thread(thread_category, text, uuid, uuid[], text);
+
 CREATE OR REPLACE FUNCTION public.create_thread(
   p_category thread_category,
   p_subject text,
@@ -4154,7 +4157,7 @@ BEGIN
 END;
 $$;
 
-COMMENT ON FUNCTION public.create_thread IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi dan dukungan lampiran (SECURITY DEFINER)';
+COMMENT ON FUNCTION public.create_thread(thread_category, text, uuid, uuid[], text, text) IS 'Fungsi RPC pembuatan thread percakapan terverifikasi dengan penegakan matriks privasi dan dukungan lampiran (SECURITY DEFINER)';
 
 
 
@@ -4425,3 +4428,5 @@ BEGIN
     ON CONFLICT DO NOTHING;
   END IF;
 END $$;
+
+
