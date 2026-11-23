@@ -117,12 +117,14 @@ export async function POST(request: Request) {
   if (profileCheckError) {
     if (
       profileCheckError.message.includes('relation') ||
+      profileCheckError.message.includes('schema cache') ||
+      profileCheckError.message.includes('profiles') ||
       profileCheckError.code === '42P01'
     ) {
       return NextResponse.json(
         {
           error:
-            'Tabel database belum dibuat di Supabase. Silakan jalankan file SQL di supabase/migrations pada SQL Editor Supabase terlebih dahulu.',
+            'Tabel database Supabase belum dibuat. Silakan buka Supabase Dashboard > SQL Editor, salin seluruh isi file supabase/RUN_ALL_MIGRATIONS.sql lalu klik RUN.',
         },
         { status: 500 }
       )

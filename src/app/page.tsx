@@ -348,10 +348,10 @@ export default function LandingPage() {
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span>Siap Evaluasi Aplikasi</span>
                 </span>
-                <h2 className="font-display text-3xl sm:text-5xl font-black leading-tight tracking-tight">
+                <h2 className="font-display text-3xl sm:text-5xl font-black leading-tight tracking-tight text-white">
                   Coba Kemudahan Sekolahku Sekarang
                 </h2>
-                <p className="text-sm sm:text-base text-white/90 font-medium mt-4 mb-8 leading-relaxed max-w-xl mx-auto">
+                <p className="text-sm sm:text-base text-emerald-100 font-medium mt-4 mb-8 leading-relaxed max-w-xl mx-auto">
                   Gunakan mode demo untuk mencoba alur kerja Guru, Murid, Orang Tua, dan Admin secara instan.
                 </p>
 
