@@ -43,7 +43,7 @@ VALUES
   ('Matematika Terapan')
 ON CONFLICT (name) DO NOTHING;
 
--- 4. Tautkan Murid ke Kelas (student_classes)
+-- 4. Tautkan Murid ke Kelas, Penugasan Mengajar, Jadwal, dan Tugas
 DO $$
 DECLARE
   v_class_id uuid;
@@ -62,69 +62,79 @@ DECLARE
   v_assign_id uuid;
 BEGIN
   SELECT id INTO v_class_id FROM public.classes WHERE name = 'XI RPL 1' LIMIT 1;
-  SELECT id INTO v_raka_id FROM public.profiles WHERE email_normalized = 'murid.raka@demo.sekolahku.test';
-  SELECT id INTO v_nadia_id FROM public.profiles WHERE email_normalized = 'murid.nadia@demo.sekolahku.test';
-  SELECT id INTO v_bima_id FROM public.profiles WHERE email_normalized = 'murid.bima@demo.sekolahku.test';
-  SELECT id INTO v_hendra_id FROM public.profiles WHERE email_normalized = 'ortu.hendra@demo.sekolahku.test';
-  SELECT id INTO v_wati_id FROM public.profiles WHERE email_normalized = 'ortu.wati@demo.sekolahku.test';
-  SELECT id INTO v_dedi_id FROM public.profiles WHERE email_normalized = 'guru.dedi@demo.sekolahku.test';
-  SELECT id INTO v_lina_id FROM public.profiles WHERE email_normalized = 'guru.lina@demo.sekolahku.test';
-  SELECT id INTO v_sari_id FROM public.profiles WHERE email_normalized = 'admin.sari@demo.sekolahku.test';
-  SELECT id INTO v_subj_pweb FROM public.subjects WHERE name = 'Pemrograman Web dan Perangkat Bergerak';
-  SELECT id INTO v_subj_bdat FROM public.subjects WHERE name = 'Basis Data';
+  SELECT id INTO v_raka_id FROM public.profiles WHERE email_normalized = 'murid.raka@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_nadia_id FROM public.profiles WHERE email_normalized = 'murid.nadia@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_bima_id FROM public.profiles WHERE email_normalized = 'murid.bima@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_hendra_id FROM public.profiles WHERE email_normalized = 'ortu.hendra@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_wati_id FROM public.profiles WHERE email_normalized = 'ortu.wati@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_dedi_id FROM public.profiles WHERE email_normalized = 'guru.dedi@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_lina_id FROM public.profiles WHERE email_normalized = 'guru.lina@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_sari_id FROM public.profiles WHERE email_normalized = 'admin.sari@demo.sekolahku.test' LIMIT 1;
+  SELECT id INTO v_subj_pweb FROM public.subjects WHERE name = 'Pemrograman Web dan Perangkat Bergerak' LIMIT 1;
+  SELECT id INTO v_subj_bdat FROM public.subjects WHERE name = 'Basis Data' LIMIT 1;
 
   -- student_classes
   IF v_class_id IS NOT NULL AND v_raka_id IS NOT NULL THEN
-    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_raka_id, v_class_id) ON CONFLICT DO NOTHING;
+    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_raka_id, v_class_id) ON CONFLICT (student_id) DO NOTHING;
   END IF;
   IF v_class_id IS NOT NULL AND v_nadia_id IS NOT NULL THEN
-    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_nadia_id, v_class_id) ON CONFLICT DO NOTHING;
+    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_nadia_id, v_class_id) ON CONFLICT (student_id) DO NOTHING;
   END IF;
   IF v_class_id IS NOT NULL AND v_bima_id IS NOT NULL THEN
-    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_bima_id, v_class_id) ON CONFLICT DO NOTHING;
+    INSERT INTO public.student_classes (student_id, class_id) VALUES (v_bima_id, v_class_id) ON CONFLICT (student_id) DO NOTHING;
   END IF;
 
   -- parent_students
   IF v_hendra_id IS NOT NULL AND v_raka_id IS NOT NULL THEN
-    INSERT INTO public.parent_students (parent_id, student_id) VALUES (v_hendra_id, v_raka_id) ON CONFLICT DO NOTHING;
+    INSERT INTO public.parent_students (parent_id, student_id) VALUES (v_hendra_id, v_raka_id) ON CONFLICT (parent_id, student_id) DO NOTHING;
   END IF;
   IF v_wati_id IS NOT NULL AND v_nadia_id IS NOT NULL THEN
-    INSERT INTO public.parent_students (parent_id, student_id) VALUES (v_wati_id, v_nadia_id) ON CONFLICT DO NOTHING;
+    INSERT INTO public.parent_students (parent_id, student_id) VALUES (v_wati_id, v_nadia_id) ON CONFLICT (parent_id, student_id) DO NOTHING;
   END IF;
 
   -- teachings
   IF v_class_id IS NOT NULL AND v_dedi_id IS NOT NULL AND v_subj_pweb IS NOT NULL THEN
     INSERT INTO public.teachings (teacher_id, class_id, subject_id)
     VALUES (v_dedi_id, v_class_id, v_subj_pweb)
-    ON CONFLICT (teacher_id, class_id, subject_id) DO UPDATE SET teacher_id = EXCLUDED.teacher_id
-    RETURNING id INTO v_teach_pweb;
+    ON CONFLICT (teacher_id, subject_id, class_id) DO NOTHING;
+
+    SELECT id INTO v_teach_pweb FROM public.teachings
+    WHERE teacher_id = v_dedi_id AND class_id = v_class_id AND subject_id = v_subj_pweb
+    LIMIT 1;
   END IF;
 
   IF v_class_id IS NOT NULL AND v_lina_id IS NOT NULL AND v_subj_bdat IS NOT NULL THEN
     INSERT INTO public.teachings (teacher_id, class_id, subject_id)
     VALUES (v_lina_id, v_class_id, v_subj_bdat)
-    ON CONFLICT (teacher_id, class_id, subject_id) DO UPDATE SET teacher_id = EXCLUDED.teacher_id
-    RETURNING id INTO v_teach_bdat;
+    ON CONFLICT (teacher_id, subject_id, class_id) DO NOTHING;
+
+    SELECT id INTO v_teach_bdat FROM public.teachings
+    WHERE teacher_id = v_lina_id AND class_id = v_class_id AND subject_id = v_subj_bdat
+    LIMIT 1;
   END IF;
 
   -- schedules
   IF v_teach_pweb IS NOT NULL THEN
-    INSERT INTO public.schedules (teaching_id, day_of_week, start_time, end_time)
-    VALUES (v_teach_pweb, 1, '07:30', '09:45'), (v_teach_pweb, 3, '10:15', '12:30')
-    ON CONFLICT DO NOTHING;
+    IF NOT EXISTS (SELECT 1 FROM public.schedules WHERE teaching_id = v_teach_pweb AND day_of_week = 1) THEN
+      INSERT INTO public.schedules (teaching_id, day_of_week, start_time, end_time)
+      VALUES (v_teach_pweb, 1, '07:30', '09:45'), (v_teach_pweb, 3, '10:15', '12:30');
+    END IF;
   END IF;
 
-  -- sample assignment
+  -- sample assignment (deadline NOT due_date)
   IF v_teach_pweb IS NOT NULL THEN
-    INSERT INTO public.assignments (teaching_id, title, description, due_date)
-    VALUES (v_teach_pweb, 'Tugas 01: CRUD Database dengan REST API', 'Buat endpoint CRUD lengkap dengan Express dan PostgreSQL.', NOW() + INTERVAL '2 days')
-    RETURNING id INTO v_assign_id;
+    IF NOT EXISTS (SELECT 1 FROM public.assignments WHERE teaching_id = v_teach_pweb AND title = 'Tugas 01: CRUD Database dengan REST API') THEN
+      INSERT INTO public.assignments (teaching_id, title, description, deadline)
+      VALUES (v_teach_pweb, 'Tugas 01: CRUD Database dengan REST API', 'Buat endpoint CRUD lengkap dengan Express dan PostgreSQL.', NOW() + INTERVAL '2 days')
+      RETURNING id INTO v_assign_id;
+    END IF;
   END IF;
 
-  -- sample announcement
+  -- sample announcement (body NOT content, target NOT target_role)
   IF v_sari_id IS NOT NULL THEN
-    INSERT INTO public.announcements (author_id, title, content, target_role, is_pinned)
-    VALUES (v_sari_id, 'Selamat Datang di Semester Genap SMK Sekolahku', 'Seluruh kegiatan belajar mengajar dimulai tepat waktu. Harap cek jadwal pelajaran dan tugas harian di portal masing-masing.', 'all', true)
-    ON CONFLICT DO NOTHING;
+    IF NOT EXISTS (SELECT 1 FROM public.announcements WHERE author_id = v_sari_id AND title = 'Selamat Datang di Semester Genap SMK Sekolahku') THEN
+      INSERT INTO public.announcements (author_id, title, body, target, is_pinned)
+      VALUES (v_sari_id, 'Selamat Datang di Semester Genap SMK Sekolahku', 'Seluruh kegiatan belajar mengajar dimulai tepat waktu. Harap cek jadwal pelajaran dan tugas harian di portal masing-masing.', 'all', true);
+    END IF;
   END IF;
 END $$;
