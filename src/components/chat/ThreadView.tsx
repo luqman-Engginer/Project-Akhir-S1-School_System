@@ -164,62 +164,68 @@ export function ThreadView({
   // 4. Supabase Realtime Subscription
   useEffect(() => {
     const supabase = createClient();
+    const uniqueChannelName = `thread:${thread.id}:${Math.random().toString(36).substring(2, 8)}`;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
-    const channel = supabase
-      .channel(`realtime-thread-${thread.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'messages',
-          filter: `thread_id=eq.${thread.id}`,
-        },
-        async (payload: any) => {
-          const newMsg = payload.new;
-          if (!newMsg) return;
+    try {
+      channel = supabase
+        .channel(uniqueChannelName)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'messages',
+            filter: `thread_id=eq.${thread.id}`,
+          },
+          async (payload: any) => {
+            const newMsg = payload.new;
+            if (!newMsg) return;
 
-          // Dapatkan signed URL jika ada lampiran
-          let attachmentUrl: string | null = null;
-          if (newMsg.attachment_path) {
-            attachmentUrl = await getSignedUrl(newMsg.attachment_path, 300);
+            // Dapatkan signed URL jika ada lampiran
+            let attachmentUrl: string | null = null;
+            if (newMsg.attachment_path) {
+              attachmentUrl = await getSignedUrl(newMsg.attachment_path, 300);
+            }
+
+            setMessages((prev) => {
+              // Hindari duplikasi jika pesan sudah ada via optimistic update
+              const exists = prev.some((m) => m.id === newMsg.id);
+              if (exists) return prev;
+
+              const isMine = newMsg.sender_id === currentProfileId;
+              const item: ChatMessageItem = {
+                id: newMsg.id,
+                sender_id: newMsg.sender_id,
+                sender_name: isMine ? 'Anda' : otherParty.name,
+                sender_role: isMine ? currentRole : otherParty.role,
+                body: newMsg.body,
+                attachment_path: newMsg.attachment_path,
+                attachment_url: attachmentUrl,
+                created_at: newMsg.created_at,
+                status: 'sent',
+              };
+
+              return [...prev, item];
+            });
+
+            // Jika pesan dari orang lain, trigger mark read
+            if (newMsg.sender_id !== currentProfileId) {
+              triggerMarkRead();
+            }
+
+            // Auto-scroll jika user berada di bawah
+            if (isNearBottom()) {
+              setTimeout(() => scrollToBottom('smooth'), 100);
+            } else {
+              setHasNewMessagesBelow(true);
+            }
           }
-
-          setMessages((prev) => {
-            // Hindari duplikasi jika pesan sudah ada via optimistic update
-            const exists = prev.some((m) => m.id === newMsg.id);
-            if (exists) return prev;
-
-            const isMine = newMsg.sender_id === currentProfileId;
-            const item: ChatMessageItem = {
-              id: newMsg.id,
-              sender_id: newMsg.sender_id,
-              sender_name: isMine ? 'Anda' : otherParty.name,
-              sender_role: isMine ? currentRole : otherParty.role,
-              body: newMsg.body,
-              attachment_path: newMsg.attachment_path,
-              attachment_url: attachmentUrl,
-              created_at: newMsg.created_at,
-              status: 'sent',
-            };
-
-            return [...prev, item];
-          });
-
-          // Jika pesan dari orang lain, trigger mark read
-          if (newMsg.sender_id !== currentProfileId) {
-            triggerMarkRead();
-          }
-
-          // Auto-scroll jika user berada di bawah
-          if (isNearBottom()) {
-            setTimeout(() => scrollToBottom('smooth'), 100);
-          } else {
-            setHasNewMessagesBelow(true);
-          }
-        }
-      )
-      .subscribe();
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn('Realtime chat subscription error (fallback to polling):', err);
+    }
 
     // Fallback polling 30 detik
     const pollInterval = setInterval(() => {
@@ -227,7 +233,11 @@ export function ThreadView({
     }, 30000);
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch {}
+      }
       clearInterval(pollInterval);
       if (markReadTimeoutRef.current) clearTimeout(markReadTimeoutRef.current);
     };

@@ -67,28 +67,34 @@ export function NotificationPanel({
     if (!profileId) return;
 
     const supabase = createClient();
-    const channelName = `realtime:notifications:${profileId}`;
+    // Gunakan suffix acak agar instance ganda (desktop sidebar & mobile header) tidak konflik nama channel
+    const uniqueChannelName = `notif:${profileId}:${Math.random().toString(36).substring(2, 8)}`;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
 
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${profileId}`,
-        },
-        (payload) => {
-          const newNotif = payload.new as NotificationItem;
-          setNotifications((prev) => [newNotif, ...prev.slice(0, 19)]);
-          setUnreadCount((c) => c + 1);
+    try {
+      channel = supabase
+        .channel(uniqueChannelName)
+        .on(
+          'postgres_changes',
+          {
+            event: 'INSERT',
+            schema: 'public',
+            table: 'notifications',
+            filter: `user_id=eq.${profileId}`,
+          },
+          (payload) => {
+            const newNotif = payload.new as NotificationItem;
+            setNotifications((prev) => [newNotif, ...prev.slice(0, 19)]);
+            setUnreadCount((c) => c + 1);
 
-          // Tampilkan Toast mengambang sesuai PRD
-          toast(`${newNotif.title}: ${newNotif.body}`, 'info');
-        }
-      )
-      .subscribe();
+            // Tampilkan Toast mengambang sesuai PRD
+            toast(`${newNotif.title}: ${newNotif.body}`, 'info');
+          }
+        )
+        .subscribe();
+    } catch (err) {
+      console.warn('Realtime subscription error (fallback to polling):', err);
+    }
 
     // Fallback polling interval 60s
     const pollInterval = setInterval(() => {
@@ -96,7 +102,11 @@ export function NotificationPanel({
     }, 60000);
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch {}
+      }
       clearInterval(pollInterval);
     };
   }, [profileId, toast, loadNotifications]);
