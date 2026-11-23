@@ -34,14 +34,14 @@ SET homeroom_teacher_id = (SELECT id FROM public.profiles WHERE email_normalized
 WHERE name = 'XI RPL 1' AND academic_year = '2025/2026';
 
 -- 3. Insert Mata Pelajaran (Subjects)
-INSERT INTO public.subjects (code, name)
+INSERT INTO public.subjects (name)
 VALUES 
-  ('PWEB', 'Pemrograman Web dan Perangkat Bergerak'),
-  ('BDAT', 'Basis Data'),
-  ('PPL', 'Pemodelan Perangkat Lunak'),
-  ('BIND', 'Bahasa Indonesia'),
-  ('MTK', 'Matematika Terapan')
-ON CONFLICT (code) DO NOTHING;
+  ('Pemrograman Web dan Perangkat Bergerak'),
+  ('Basis Data'),
+  ('Pemodelan Perangkat Lunak'),
+  ('Bahasa Indonesia'),
+  ('Matematika Terapan')
+ON CONFLICT (name) DO NOTHING;
 
 -- 4. Tautkan Murid ke Kelas (student_classes)
 DO $$
@@ -70,8 +70,8 @@ BEGIN
   SELECT id INTO v_dedi_id FROM public.profiles WHERE email_normalized = 'guru.dedi@demo.sekolahku.test';
   SELECT id INTO v_lina_id FROM public.profiles WHERE email_normalized = 'guru.lina@demo.sekolahku.test';
   SELECT id INTO v_sari_id FROM public.profiles WHERE email_normalized = 'admin.sari@demo.sekolahku.test';
-  SELECT id INTO v_subj_pweb FROM public.subjects WHERE code = 'PWEB';
-  SELECT id INTO v_subj_bdat FROM public.subjects WHERE code = 'BDAT';
+  SELECT id INTO v_subj_pweb FROM public.subjects WHERE name = 'Pemrograman Web dan Perangkat Bergerak';
+  SELECT id INTO v_subj_bdat FROM public.subjects WHERE name = 'Basis Data';
 
   -- student_classes
   IF v_class_id IS NOT NULL AND v_raka_id IS NOT NULL THEN
